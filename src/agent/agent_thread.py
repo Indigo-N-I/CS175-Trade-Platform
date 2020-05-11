@@ -3,7 +3,7 @@ from threading import Thread
 from src.util.util import *
 
 class agent_thread(Thread):
-    def __init__(self, sync=True,         currently_holding = False, buy_in_price = 0, time_ = 0, market_history = []):
+    def __init__(self, sync=True,         currently_holding = False, buy_in_price = 0, sell_price = 0, time_ = 0, market_history = []):
         Thread.__init__(self)
 
         if time_ != len(market_history):
@@ -18,6 +18,7 @@ class agent_thread(Thread):
 
         self.holding = currently_holding
         self.buy_in_price = buy_in_price
+        self.sell_price = sell_price
 
         self.next_time_flag = False
 
@@ -107,3 +108,16 @@ class agent_thread(Thread):
 
             self._make_decision()
             last_time = self.time_counter
+
+    '''
+    Default transaction value calculation
+    Returns % profit if profit
+    Returns 2*% loss if loss
+
+    Overwrite this function to for custom transaction values
+    '''
+    def transaction_value(self):
+        if self.sell_price > self.buy_in_price:
+            return (self.sell_price - self.buy_in_price)/self.buy_in_price
+        else:
+            return 2*(self.sell_price - self.buy_in_price)/self.buy_in_price

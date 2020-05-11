@@ -3,12 +3,19 @@ import time
 import  numpy as np
 from src.util.util import *
 
+
 class market():
     '''/*
      * This is the base object for market
      * it will only consider price
     */'''
-    def __init__(self ,data_path = '', random=False,length=0):
+    def __init__(self ,data_path = '', random=False,length=0 , type = None):
+        #type is for future use, if there is a specific way of parsing needed
+
+        #Make sure that is some sort of data
+        if not random and data_path == '':
+            print("warning: no data was given to generate a market")
+
         self.time_counter = 0
         self.market_values = list()
         if random:
@@ -25,18 +32,42 @@ class market():
             self.data_path = data_path
             self.read_data()
             print("Info: Market: imported "+str(self.length) + "lines of data")
+
     def read_data(self):
-        t = 0
-        with open(self.data_path) as f:
-            for line in f:
-                self.length += 1
-                d = line.strip().split(',')
-                for i, ii in enumerate(d):
-                    d[i] = float(ii)
-                self.market_values.append(mrkt_data(d, time=t))
-                t += 1
+        if type == "minute":
+            self.market_values = parse(self.data_path).values
+        else:
+            data = np.genfromtxt(self.data_path, dtype = float, delimiter = ',')
+            data = np.reshape(data, (1, np.product(data.shape)))[0]
+            for i, val in enumerate(data):
+                self.market_values.append(mrkt_data([val], time = i))
+            self.len = data.shape[0]
+
+    '''
+    Get current value gives the current value of the market
+
+    If it has gotten minute data, then the current value will just be open
+    If it has gotten tick data, the currnt value will be the value at said tick
+
+    Get_current_open/high/low/close only works for minute data
+    '''
     def get_current_value(self):
-        return self.market_values[self.time_counter]
+        try:
+            return self.market_values[self.time_counter][0]
+        except (TypeError):
+            return self.market_values[self.time_counter]
+
+    def get_current_open(self):
+        return self.market_values[self.time_counter][0]
+
+    def get_current_high(self):
+        return self.market_values[self.time_counter][1]
+
+    def get_current_low(self):
+        return self.market_values[self.time_counter][2]
+
+    def get_current_close(self):
+        return self.market_values[self.time_counter][3]
 
     def get_all_value(self):
         # historical price, including current
@@ -50,7 +81,7 @@ class market():
         if range == 0:
             return self.get_all_value()
         if(range >= self.time_counter + 1):
-            return np.append(np.array([mrkt_data([0], None)]*(range-self.time_counter-1)), np.array(self.market_values[0:self.time_counter+1]))
+            return np.append(np.array([mrkt_data([0], None)]*(range-self.time_counter-1)), self.market_values[0:self.time_counter+1])
         return np.array(self.market_values[self.time_counter - range : self.time_counter])
 
     def set_time(self,value):

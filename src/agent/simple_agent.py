@@ -22,6 +22,8 @@ class simple_agent(agent_thread):
             self.act = action.SELL
             print("sell at time " + str(self.time_counter) + "\t price : " + str(
                 self.market_history[self.time_counter - 1].price))
+            self.sell_price = self.market_history[self.time_counter - 1].price
+            print(f'The value of transaction is {self.transaction_value()}')
             self.holding = False
         elif self.holding_time - self.time_counter > 20:
             self.act = action.SELL
@@ -29,3 +31,14 @@ class simple_agent(agent_thread):
                 self.market_history[self.time_counter - 1].price))
             self.holding = False
         return self.act
+
+    '''
+    Custom Transaction Valuce function
+    Value degrades with time
+    Punishment stays the same
+    '''
+    def transaction_value(self):
+        if self.sell_price > self.buy_in_price:
+            return (self.sell_price - self.buy_in_price)/self.buy_in_price / (2**(self.holding_time/2 + .5))
+        else:
+            return 2*(self.sell_price - self.buy_in_price)/self.buy_in_price
