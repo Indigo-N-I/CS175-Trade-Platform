@@ -1,5 +1,5 @@
-from src.agent.agent_thread import agent_thread
-from src.util.util import *
+from ...src.agent.agent_thread import agent_thread
+from ...src.util.util import *
 
 # This is a very simple Agent, it will buy any time possible
 # and sell if the current price is higher than buy-in price
@@ -30,6 +30,8 @@ class simple_agent(agent_thread):
             print("hold 2 long  " + str(self.time_counter) + "\t price : " + str(
                 self.market_history[self.time_counter - 1].price))
             self.holding = False
+        else:
+            self.act = action.HOLD
         return self.act
 
     '''
