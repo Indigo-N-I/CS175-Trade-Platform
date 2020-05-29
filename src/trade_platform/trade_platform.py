@@ -35,10 +35,8 @@ class trade_platform(Thread):
         self.exit = False
         self.plotted = False
 
-
     def add_agent(self, ag):
         # needs to be added before Thread start
-        # if(self.started):
         if (self._started.is_set()):
             raise Exception("add_agenr : cannot add to runing platform")
         self.acb.append(self.ACB(ag))
@@ -172,5 +170,4 @@ class trade_platform(Thread):
         plt.ion()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
-
         self.line1, = self.ax.plot(np.arange(50), [i.price for i in self.market.get_ranged_value(50)], 'r-')
