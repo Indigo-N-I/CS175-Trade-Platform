@@ -216,6 +216,9 @@ class tcn_agent(agent_thread):
                     inner_data.append(value)
                 normalized_data.append(inner_data)
             return np.array(normalized_data)
+        elif mode == "normal":
+            self.normalization_data = np.asarray([np.mean(data), np.std(data)])
+            data = (data - np.mean(data))/np.std(data)
         return data
 
     def train(self, data_path = None):
@@ -232,7 +235,7 @@ class tcn_agent(agent_thread):
             inputs = self.market_history[-self.moments*10:]
         x, y = self.split_data(inputs, self.moments)
         self.m.fit(x, y, epochs=20, validation_split=0.1)
-        
+
     def run_model(self):
         #if self.log_percentage != []:
             #inputs = self.get_log_percentages(-self.moments)
